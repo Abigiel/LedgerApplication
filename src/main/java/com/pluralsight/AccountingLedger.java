@@ -4,6 +4,7 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -181,7 +182,7 @@ public class AccountingLedger {
 
     public static void reportScreen() throws IOException {
         System.out.println("Please select an option: ");
-        System.out.println(" 1. Month to Date \n 2. Previous Month \n 3. Year To Date \n 4. Previous Year \n 5. Search by Vendor \n 0. Back");
+        System.out.println(" 1. Month to Date \n 2. Previous Month \n 3. Year To Date \n 4. Previous Year \n 5. Search by Vendor \n 6.Custom Search \n 0. Back");
 
 
         Scanner myScanner = new Scanner(System.in);
