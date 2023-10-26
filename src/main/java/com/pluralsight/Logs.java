@@ -12,9 +12,11 @@ public class Logs {
     private String vendor;
     private double amount;
 
+
+
     public Logs (LocalDate date, LocalTime time, String description, String vendor, double amount){
-        this.date = LocalDate.now();
-        this.time = LocalTime.now();
+        this.date = date;
+        this.time = time;
         this.description = description;
         this.vendor = vendor;
         this.amount = amount;

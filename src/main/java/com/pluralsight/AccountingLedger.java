@@ -1,18 +1,16 @@
 package com.pluralsight;
 
 import java.io.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 public class AccountingLedger {
 
     static Scanner scan = new Scanner(System.in);
 
     static HashMap<String, Logs> transactions = new HashMap<>();
+    static List<Logs> logsList = new ArrayList<>(transactions.values());
 
     static FileWriter writer;
     static FileReader reader;
@@ -101,7 +99,19 @@ public class AccountingLedger {
         }
 
 
-        writer.close();
+        buffWriter.close();
+    }
+
+
+    public static void formattedLogsList(List<Logs>logsList) {
+        logsList.sort((d1,d2)->{
+            LocalDateTime first = LocalDateTime.of(d1.getDate(),d1.getTime());
+            LocalDateTime second = LocalDateTime.of(d2.getDate(),d2.getTime());
+
+            return second.compareTo(first);
+        });
+
+
     }
 
     public static void ledgerScreen() throws IOException {
@@ -132,17 +142,28 @@ public class AccountingLedger {
 
             Logs log = new Logs(Date, Time, logDescription, logVendor, logAmount);
 
+
             if (log.getDescription() != null) {     // use loop to add all values to HashMap
 
                 transactions.put(log.getDescription(), log);  // add products to inventory with descriptions as keys
 
             }
 
-        }
 
+
+
+
+
+        }
+        buffReader.close();
+
+
+
+        logsList.addAll(transactions.values());
+        formattedLogsList(logsList);
 
         String choice = scan.nextLine();
-        for (Logs t : transactions.values())
+        for (Logs t : logsList)
             switch (choice) {
                 case "A":
 
@@ -182,78 +203,85 @@ public class AccountingLedger {
 
     public static void reportScreen() throws IOException {
         System.out.println("Please select an option: ");
-        System.out.println(" 1. Month to Date \n 2. Previous Month \n 3. Year To Date \n 4. Previous Year \n 5. Search by Vendor \n 6.Custom Search \n 0. Back");
+        System.out.println(" 1. Month to Date \n 2. Previous Month \n 3. Year To Date \n 4. Previous Year \n 5. Search by Vendor \n 6. Custom Search \n 0. Back");
 
+        while (true) {
+            Scanner myScanner = new Scanner(System.in);
+            int answer = myScanner.nextInt();
 
-        Scanner myScanner = new Scanner(System.in);
-        int answer = myScanner.nextInt();
-
-        switch (answer) {
-            case 1:
-                for (Logs t : transactions.values()) {
-                    LocalDate today = LocalDate.now();
-                    LocalDate tDate = t.getDate();
-                    if (tDate.getMonth() == today.getMonth() && !tDate.isAfter(today)) {
-                        System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
-                                t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
+            switch (answer) {
+                case 1:
+                    for (Logs t : transactions.values()) {
+                        LocalDate today = LocalDate.now();
+                        LocalDate tDate = t.getDate();
+                        if (tDate.getMonth() == today.getMonth() && !tDate.isAfter(today)) {
+                            System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
+                                    t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
+                        }
                     }
-                }
-                break;
-            case 2:
-                for (Logs t : transactions.values()) {
-                    LocalDate today = LocalDate.now();
-                    LocalDate monthBefore = today.minusMonths(1);
-                    LocalDate tDate = t.getDate();
-                    if (tDate.getMonth().equals(monthBefore.getMonth())) {
-                        System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
-                                t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
-                    }
-                }
-                break;
-            case 3:
-                for (Logs t : transactions.values()) {
-                    LocalDate today = LocalDate.now();
-                    LocalDate tDate = t.getDate();
-                    if (tDate.getYear() == today.getYear() && !tDate.isAfter(today)) {
-                        System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
-                                t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
-                    }
-                }
-                break;
+                    break;
+                case 2:
+                    for (Logs t : transactions.values()) {
+                        LocalDate today = LocalDate.now();
+                        Month monthBefore = Month.from(today.minusMonths(1));
+                        LocalDate transactionDate = t.getDate();
 
-            case 4:
-                for (Logs t : transactions.values()) {
-                    LocalDate today = LocalDate.now();
-                    LocalDate yearBefore = today.minusYears(1);
-                    LocalDate tDate = t.getDate();
-                    if (tDate.getYear() == (yearBefore.getYear())) {
-                        System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
-                                t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
+                        if (transactionDate.getMonth().equals(monthBefore)) {
+                            System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
+                                    t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
+
+                        }
                     }
-                }
-                break;
-            case 5:
-                System.out.println("Please enter the name of the vendor: ");
-                String vendorName = scan.nextLine();
-
-                for (Logs t : transactions.values()) {
-
-                    if (t.getVendor().equalsIgnoreCase(vendorName)) {
-                        System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
-                                t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
+                    break;
+                case 3:
+                    for (Logs t : transactions.values()) {
+                        LocalDate today = LocalDate.now();
+                        LocalDate tDate = t.getDate();
+                        if (tDate.getYear() == today.getYear() && !tDate.isAfter(today)) {
+                            System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
+                                    t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
+                        }
                     }
-                }
-                break;
+                    break;
 
-            case 0:
-                homeScreenDisplay();
-                break;
-            default:
-                System.out.println("Invalid option. Please select one of the options provided");
-                reportScreen();
+                case 4:
+                    for (Logs t : transactions.values()) {
+                        LocalDate today = LocalDate.now(); //.withDayOfYear(1);
+                        Year yearNow = Year.from(today);
+                        Year yearBefore = yearNow.minusYears(1); //.withDayOfYear(1);
+                        LocalDate tDate = t.getDate();
+                        Year tYear = Year.from(tDate);
+
+
+                        if (tYear.equals(yearBefore)) {
+                            System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
+                                    t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
+                        }
+                    }
+                    break;
+                case 5:
+                    System.out.println("Please enter the name of the vendor: ");
+                    String vendorName = scan.nextLine();
+
+                    for (Logs t : transactions.values()) {
+
+                        if (t.getVendor().equalsIgnoreCase(vendorName)) {
+                            System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
+                                    t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
+                        }
+                    }
+                    break;
+
+                case 0:
+                    homeScreenDisplay();
+                    break;
+                default:
+                    System.out.println("Invalid option. Please select one of the options provided");
+                    reportScreen();
+
+            }
 
         }
-
     }
 
 }
