@@ -10,7 +10,7 @@ public class AccountingLedger {
     static Scanner scan = new Scanner(System.in);
 
     static HashMap<String, Logs> transactions = new HashMap<>();
-    static List<Logs> logsList = new ArrayList<>(transactions.values());
+    static List<Logs> logsList = new ArrayList<>(transactions.values()); // used to make the values more accessible
 
     static FileWriter writer;
     static FileReader reader;
@@ -81,8 +81,10 @@ public class AccountingLedger {
 
             Logs log = new Logs(date, time, description, vendor, amount);
 
+
             buffWriter.write(log.getDate() + " | " + log.getTime() + " | " + log.getDescription() + " | " + log.getVendor() + " | " + -1 * log.getAmount());
             buffWriter.newLine();
+
 
             buffWriter.flush();
             System.out.println("You have added this payment to your ledger.");
@@ -103,10 +105,10 @@ public class AccountingLedger {
     }
 
 
-    public static void formattedLogsList(List<Logs>logsList) {
-        logsList.sort((d1,d2)->{
-            LocalDateTime first = LocalDateTime.of(d1.getDate(),d1.getTime());
-            LocalDateTime second = LocalDateTime.of(d2.getDate(),d2.getTime());
+    public static void formattedLogsList(List<Logs> logsList) {
+        logsList.sort((d1, d2) -> {
+            LocalDateTime first = LocalDateTime.of(d1.getDate(), d1.getTime());
+            LocalDateTime second = LocalDateTime.of(d2.getDate(), d2.getTime());
 
             return second.compareTo(first);
         });
@@ -150,13 +152,7 @@ public class AccountingLedger {
             }
 
 
-
-
-
-
         }
-        buffReader.close();
-
 
 
         logsList.addAll(transactions.values());
@@ -198,12 +194,16 @@ public class AccountingLedger {
                     System.out.println("Invalid option. Please select one of the options provided");
                     ledgerScreen();
             }
+        buffReader.close();
 
     }
 
-    public static void reportScreen() throws IOException {
+    public static void reportScreen() {
+
+
         System.out.println("Please select an option: ");
-        System.out.println(" 1. Month to Date \n 2. Previous Month \n 3. Year To Date \n 4. Previous Year \n 5. Search by Vendor \n 6. Custom Search \n 0. Back");
+        System.out.println(" 1. Month to Date \n 2. Previous Month \n 3. Year To Date " +
+                "\n 4. Previous Year \n 5. Search by Vendor \n 6. Custom Search \n 0. Back");
 
         while (true) {
             Scanner myScanner = new Scanner(System.in);
@@ -211,17 +211,17 @@ public class AccountingLedger {
 
             switch (answer) {
                 case 1:
-                    for (Logs t : transactions.values()) {
+                    for (Logs t : logsList) {
                         LocalDate today = LocalDate.now();
                         LocalDate tDate = t.getDate();
-                        if (tDate.getMonth() == today.getMonth() && !tDate.isAfter(today)) {
+                        if (tDate.getMonth() == today.getMonth() && tDate.getYear() == today.getYear() && !tDate.isAfter(today)) {
                             System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
                                     t.getDate(), t.getTime(), t.getDescription(), t.getVendor(), t.getAmount());
                         }
                     }
                     break;
                 case 2:
-                    for (Logs t : transactions.values()) {
+                    for (Logs t : logsList) {
                         LocalDate today = LocalDate.now();
                         Month monthBefore = Month.from(today.minusMonths(1));
                         LocalDate transactionDate = t.getDate();
@@ -234,7 +234,7 @@ public class AccountingLedger {
                     }
                     break;
                 case 3:
-                    for (Logs t : transactions.values()) {
+                    for (Logs t : logsList) {
                         LocalDate today = LocalDate.now();
                         LocalDate tDate = t.getDate();
                         if (tDate.getYear() == today.getYear() && !tDate.isAfter(today)) {
@@ -245,7 +245,7 @@ public class AccountingLedger {
                     break;
 
                 case 4:
-                    for (Logs t : transactions.values()) {
+                    for (Logs t : logsList) {
                         LocalDate today = LocalDate.now(); //.withDayOfYear(1);
                         Year yearNow = Year.from(today);
                         Year yearBefore = yearNow.minusYears(1); //.withDayOfYear(1);
@@ -263,7 +263,7 @@ public class AccountingLedger {
                     System.out.println("Please enter the name of the vendor: ");
                     String vendorName = scan.nextLine();
 
-                    for (Logs t : transactions.values()) {
+                    for (Logs t : logsList) {
 
                         if (t.getVendor().equalsIgnoreCase(vendorName)) {
                             System.out.printf("Date: %s | Time: %s | Description: %s | Vendor: %s | Amount %.2f\n",
@@ -273,7 +273,7 @@ public class AccountingLedger {
                     break;
 
                 case 0:
-                    homeScreenDisplay();
+                    reportScreen();
                     break;
                 default:
                     System.out.println("Invalid option. Please select one of the options provided");

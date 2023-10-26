@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-//date|time|description|vendor|amount
+
 public class Logs {
     private LocalDate date;
     private LocalTime time;
